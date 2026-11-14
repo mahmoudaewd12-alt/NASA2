@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lunar Landing Site Navigator</title>
+  <meta name="description" content="Explore lunar regions, inspect their data and evaluate landing suitability with a machine learning model. NASA Space Apps Challenge project.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%2314181f'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%23fff' opacity='.85'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="intro-active">
+
+<!-- Icon sprite (inline SVG, no external files) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-moon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="9" r="1.6"/><circle cx="15" cy="13.5" r="2.2"/><circle cx="8.5" cy="15.5" r="1"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M8 16v-5M12 16V8M16 16v-3"/></symbol>
+  <symbol id="i-compare" viewBox="0 0 24 24"><rect x="3" y="5" width="7" height="14"/><rect x="14" y="5" width="7" height="14"/><path d="M6.5 9v6M17.5 9v6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></symbol>
+  <symbol id="i-slope" viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M3 20L17 8"/><path d="M9 20a6 6 0 0 0-1.2-3.6"/></symbol>
+  <symbol id="i-earth" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-3.5M4 4v4h4M4 13a8 8 0 0 0 14.5 3.5M20 20v-4h-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="M3 19l6-10 4 6 2-3 6 7z"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+</svg>
+
+<!-- ============ Cinematic intro ============ -->
+<div id="intro" class="intro" role="dialog" aria-label="Introduction">
+  <div class="intro-stars" aria-hidden="true"></div>
+  <div class="intro-stage" aria-hidden="true">
+    <div class="intro-moon" id="introMoon"></div>
+  </div>
+  <div class="intro-copy">
+    <p class="intro-eyebrow">NASA Space Apps Challenge</p>
+    <p class="intro-title">Lunar Landing Site Navigator</p>
+    <p class="intro-sub">Explore lunar regions, inspect their data, and evaluate landing suitability with machine learning.</p>
+  </div>
+  <button type="button" class="intro-skip" id="introSkip">Skip intro</button>
+</div>
+
+<!-- ============ Navigation ============ -->
+<header class="site-nav" id="top">
+  <div class="container nav-inner">
+    <a class="brand" href="#top" aria-label="Lunar Landing Site Navigator — home">
+      <svg class="icon brand-icon" aria-hidden="true"><use href="#i-moon"/></svg>
+      <span class="brand-text"><strong>Lunar Landing</strong> Site Navigator</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#explore" data-nav="explore">Explore Map</a></li>
+        <li><a href="#analysis" data-nav="analysis">Site Analysis</a></li>
+        <li><a href="#compare" data-nav="compare">Compare Sites</a></li>
+        <li><a href="#about" data-nav="about">About Project</a></li>
+      </ul>
+    </nav>
+    <div class="nav-actions">
+      <button type="button" class="api-pill" id="apiStatus" title="Check connection to the FastAPI backend">
+        <span class="dot" aria-hidden="true"></span><span class="api-pill-text">API: checking…</span>
+      </button>
+      <button type="button" class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============ Hero ============ -->
+<section class="hero" aria-labelledby="heroTitle">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">NASA Space Apps Challenge</p>
+      <h1 id="heroTitle">Lunar Landing Site Navigator</h1>
+      <p class="lead">Selecting where to land on the Moon means balancing sunlight, terrain and a line of sight to Earth. This platform lets you explore lunar regions on a real map, inspect their dataset values, and evaluate landing suitability with a trained machine learning model.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#explore">Explore Lunar Map <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-ghost" href="#about">How it works</a>
+      </div>
+      <dl class="hero-stats">
+        <div><dt>Regions loaded</dt><dd id="statRegions">—</dd></div>
+        <div><dt>South of −80° latitude</dt><dd id="statPolar">—</dd></div>
+        <div><dt>Prediction API</dt><dd id="statApi">Checking…</dd></div>
+      </dl>
+    </div>
+    <figure class="hero-figure">
+      <div class="hero-frame">
+<img id="heroMap" src="./6037101826668171398_121.jpg" alt="Moon Map">        <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      </div>
+      <figcaption>Project map of the Moon (equirectangular projection) with the dataset's labelled regions.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ Explorer ============ -->
+<section class="section" id="explore" aria-labelledby="exploreTitle">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow"><span>01</span> Explore Map</p>
+      <h2 id="exploreTitle">Lunar Surface Explorer</h2>
+      <p>Select a region marker to read its dataset values. Markers are placed from each region's latitude and east longitude on the map's verified lat/long grid. Scroll or use the controls to zoom, drag to pan.</p>
+    </header>
+
+    <div class="explorer">
+      <div class="map-col">
+        <div class="map-toolbar">
+          <div class="map-readouts" aria-live="off">
+            <span class="readout"><svg class="icon" aria-hidden="true"><use href="#i-compass"/></svg><span id="cursorReadout">Cursor: —</span></span>
+            <span class="readout">Zoom <span id="zoomReadout">100%</span></span>
+          </div>
+          <div class="map-ctrl" role="group" aria-label="Map zoom controls">
+            <button type="button" class="icon-btn" id="zoomOut" aria-label="Zoom out"><svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg></button>
+            <button type="button" class="icon-btn" id="zoomIn" aria-label="Zoom in"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
+            <button type="button" class="icon-btn" id="zoomFit" aria-label="Fit whole map"><svg class="icon" aria-hidden="true"><use href="#i-fit"/></svg></button>
+          </div>
+        </div>
+
+        <div class="map-viewport" id="mapViewport" tabindex="0" role="application" aria-label="Interactive lunar map. Use plus and minus to zoom, arrow keys to pan, Tab to move between region markers.">
+          <div class="map-stage" id="mapStage">
+<img id="mapImage" src="6037101826668171398_121.jpg" alt="Moon Map" draggable="false">            <div class="marker-layer" id="markerLayer"></div>
+          </div>
+          <div class="map-msg" id="mapMsg" role="status" hidden></div>
+        </div>
+        <p class="map-note" id="mapNote"></p>
+
+        <div class="browser">
+          <div class="browser-head">
+            <label class="search" for="regionSearch">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input type="search" id="regionSearch" placeholder="Search regions" autocomplete="off">
+            </label>
+            <label class="check"><input type="checkbox" id="polarOnly"> <span>South of −80° only</span></label>
+            <span class="count" id="regionCount" aria-live="polite"></span>
+          </div>
+          <ul class="region-list" id="regionList" aria-label="Regions"></ul>
+        </div>
+      </div>
+
+      <aside class="side-col" aria-label="Selected region">
+        <div class="panel" id="regionPanel" aria-live="polite">
+          <div class="panel-empty">
+            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-pin"/></svg>
+            <h3>No region selected</h3>
+            <p>Choose a marker on the map or a region from the list to see its dataset values.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Site analysis ============ -->
+<section class="section section-alt" id="analysis" aria-labelledby="analysisTitle">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow"><span>02</span> Site Analysis</p>
+      <h2 id="analysisTitle">Landing Suitability Analysis</h2>
+      <p>The selected region's values are sent to the FastAPI backend, which runs the trained model and returns a landing score and class.</p>
+    </header>
+    <div id="analysisRoot" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ============ Compare ============ -->
+<section class="section" id="compare" aria-labelledby="compareTitle">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow"><span>03</span> Compare Sites</p>
+      <h2 id="compareTitle">Compare Landing Sites</h2>
+      <p>Select two to four regions to compare their dataset values side by side. Model results appear after you analyze the sites.</p>
+    </header>
+
+    <div class="compare-controls">
+      <label class="field" for="compareSelect"><span>Add a region</span>
+        <select id="compareSelect"></select>
+      </label>
+      <button type="button" class="btn btn-secondary" id="compareAdd"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg> Add</button>
+      <button type="button" class="btn btn-ghost" id="compareClear">Clear</button>
+      <button type="button" class="btn btn-primary" id="compareAnalyze" disabled><svg class="icon" aria-hidden="true"><use href="#i-cpu"/></svg> Analyze all selected</button>
+    </div>
+    <ul class="chips" id="compareChips" aria-label="Selected regions"></ul>
+    <div id="compareOut"></div>
+  </div>
+</section>
+
+<!-- ============ About ============ -->
+<section class="section section-alt" id="about" aria-labelledby="aboutTitle">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow"><span>04</span> About Project</p>
+      <h2 id="aboutTitle">Why landing-site selection is hard</h2>
+      <p>Every candidate site is a trade-off. The Moon's poles, with their low sun angles and long shadows, make that trade-off especially demanding. This tool brings the main factors together in one place.</p>
+    </header>
+
+    <div class="about-grid">
+      <article class="card">
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-sun"/></svg>
+        <h3>Illumination</h3>
+        <p>Sunlight supplies solar power and moderates surface temperature. Near the poles the Sun stays close to the horizon, so illumination can change sharply over short distances and time spans, and long shadows can hide hazards.</p>
+      </article>
+      <article class="card">
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-slope"/></svg>
+        <h3>Slope and elevation</h3>
+        <p>A lander needs ground that is gentle enough to touch down on safely. Steep slopes and rough terrain raise tipping and hazard risks. Elevation shapes both terrain and what the site can see of the sky and horizon.</p>
+      </article>
+      <article class="card">
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-earth"/></svg>
+        <h3>Earth visibility</h3>
+        <p>Direct communication with Earth needs a line of sight. Sites on the far side, or hidden behind local terrain, cannot reach Earth directly and need relay support.</p>
+      </article>
+      <article class="card">
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-cpu"/></svg>
+        <h3>Machine learning</h3>
+        <p>A random-forest model, served through FastAPI, turns sun elevation, azimuth, position, illumination and Earth visibility into a landing score and a class (Poor, Moderate, Good or Excellent). It supports screening; it does not replace mission analysis.</p>
+      </article>
+    </div>
+
+    <div class="provenance">
+      <h3>Measured, calculated and predicted: how to read the numbers</h3>
+      <div class="prov-grid">
+        <div class="prov">
+          <span class="tag tag-data">Dataset value</span>
+          <p>Shown exactly as loaded from the project's CSV file. Missing values appear as “Not Available”. Nothing is filled in or estimated.</p>
+        </div>
+        <div class="prov">
+          <span class="tag tag-derived">Derived by the backend</span>
+          <p>The API computes the <code>earth_visible</code> flag from Earth visibility (greater than 50%) before running the model. It is not read from the CSV for prediction.</p>
+        </div>
+        <div class="prov">
+          <span class="tag tag-model">Model output</span>
+          <p>The landing score and class come straight from the API response. They are model predictions, not measurements, and are never presented as probabilities.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="limits">
+      <h3>Limitations to keep in mind</h3>
+      <ul>
+        <li>The current model was trained on three sites and its labels come from a rule-based score built from the same features, so it reproduces that rule rather than discovering new facts about the Moon.</li>
+        <li>Slope and elevation are displayed but are <strong>not</strong> inputs to the current model. A high score does not account for terrain hazards.</li>
+        <li>A prediction never guarantees mission success. Use it as a screening aid alongside expert analysis.</li>
+      </ul>
+      <p class="coverage" id="aboutCoverage"></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span><strong>Lunar Landing Site Navigator</strong> · NASA Space Apps Challenge project</span>
+    <span class="muted">Prototype for exploration and education. Not an official NASA product and not for mission planning.</span>
+  </div>
+</footer>
+
+<div class="sr-only" id="liveRegion" role="status" aria-live="polite"></div>
+<script src="script.js"></script>
+</body>
+</html>
